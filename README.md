@@ -7,7 +7,7 @@
 This is the repository for training the trace generator. We mainly introduce the usage of the code as below. 
 This is only for research purpose, so use carefully.
 
-## How to use
+## How to usehttps://github.com/khashiii97/wfd-gan.git
 
 ### Feature extraction
 First modify `conf.ini` (only `MONITORED_SITE_NUM` and `MONITORED_INST_NUM` matters).

@@ -158,7 +158,7 @@ if __name__ == '__main__':
     MON_SITE_NUM = int(cf['monitored_site_num'])
     MON_INST_NUM = int(cf['monitored_inst_num'])
     MON_SITE_START_IND = int(cf['monitored_site_start_ind'])
-    MON_INST_START_IND = int(cf['monitored_inst_start_ind'])
+    MON_INST_START_IND = int(cf['monitored_inst_start_ind'])                                                        
     # if cf['open_world'] == '1':
     #     UNMON_SITE_NUM = int(cf['unmonitored_site_num'])
     #     OPEN_WORLD = 1

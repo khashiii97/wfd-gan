@@ -5,3 +5,4 @@ src/__pycache__
 src/obsolete
 d_model/*.ckpt
 f_model/*.ckpt
+ds19
