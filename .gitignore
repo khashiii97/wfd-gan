@@ -6,3 +6,4 @@ src/obsolete
 d_model/*.ckpt
 f_model/*.ckpt
 ds19
+outputs/ds19/features

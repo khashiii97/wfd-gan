@@ -6,7 +6,7 @@ import utils
 import argparse
 import multiprocessing as mp
 import pandas as pd
-
+import matplotlib.pyplot as plt
 logger = utils.init_logger('extract')
 
 # it is possible the trace has a long tail
@@ -15,7 +15,6 @@ logger = utils.init_logger('extract')
 # maybe the loading is already finished
 # Set a very conservative value
 CUT_OFF_THRESHOLD = 10
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Extract burst sequences ipt from raw traces')
@@ -62,20 +61,25 @@ def get_burst(trace, fdir):
     start, end = 0, len(trace)
     ipt_burst = np.diff(trace[:, 0])
     ipt_outlier_inds = np.where(ipt_burst > CUT_OFF_THRESHOLD)[0]
-
+    original_length = len(trace)
+    outliers = []
+    original_trace_size = len(trace)
+    
     if len(ipt_outlier_inds) > 0:
         outlier_ind_first = ipt_outlier_inds[0]
         if outlier_ind_first < 50:
             start = outlier_ind_first + 1
+            outliers.append(outlier_ind_first)
         outlier_ind_last = ipt_outlier_inds[-1]
         if outlier_ind_last > 50:
             end = outlier_ind_last + 1
+            outliers.append(outlier_ind_last)
 
     if start != 0 or end != len(trace):
-        print("File {} trace has been truncated from {} to {}".format(fdir, start, end))
+        print("File {} with length {} had outliers {} in trace has been truncated from {} to {}".format(fdir,original_length, outliers, start, end))
 
     trace = trace[start:end].copy()
-
+    modified_trace_size = len(trace)
     # remove the first few lines that are incoming packets
     start = -1
     for time, size in trace:
@@ -105,21 +109,22 @@ def get_burst(trace, fdir):
     merged_burst_seqs = np.array(merged_burst_seqs)
     assert sum(merged_burst_seqs[::2, 1]) == sum(trace[trace[:, 1] > 0][:, 1])
     assert sum(merged_burst_seqs[1::2, 1]) == sum(trace[trace[:, 1] < 0][:, 1])
-    return np.array(merged_burst_seqs)
+    return np.array(merged_burst_seqs), original_trace_size, modified_trace_size
 
 
 def extract(trace, fdir):
     global length, norm
-    burst_seq = get_burst(trace, fdir)
+    burst_seq, original_trace_size, modified_trace_size = get_burst(trace, fdir)
     times = burst_seq[:, 0]
     bursts = abs(burst_seq[:, 1])
     if norm:
         bursts /= cm.CELL_SIZE
     bursts = list(bursts)
     bursts.insert(0, len(bursts))
+    original_burst_size = len(bursts)
     bursts = bursts[:length] + [0] * (length - len(bursts))
     assert len(bursts) == length
-    return bursts, times
+    return bursts, times, original_burst_size, original_trace_size, modified_trace_size
 
 
 def parallel(flist, n_jobs=70):
@@ -129,17 +134,24 @@ def parallel(flist, n_jobs=70):
         p.join()
     return res
 
-
+# parallel gets the list of cell paths, creates processes and calls extractfeature on each cell path
+# extractfeature loads the trace as an np array with form of [[t1,d1], [t2,d2],...] and calls extract on that trace
+# extract calls get_burst on the trace to get the trace in burst mode. then it outputs two elements : bursts and time
+# bursts: list containing the size of consecutive bursts. the first element is the number of actual bursts. then, 
+# the abs of the sizes are added. then, 0 is added until the length of burst is length. so if length is 8, burst will be something like:
+# [6, 2.0, 1.0, 2.0, 1.0, 2.0, 4.0, 0, 0].
+# time is the start time of each real burst. e.g., [0.     0.4695 0.4718 0.7277 0.7313 0.975 ]
+# finally, extractfeature adds a label of the cell, and outputs bursts, times, label
 def extractfeature(fdir):
     global MON_SITE_NUM, norm_cell
     fname = fdir.split('/')[-1].split(".")[0]
     trace = utils.loadTrace(fdir, norm_cell=norm_cell)
-    bursts, times = extract(trace, fdir)
+    bursts, times, original_burst_size, original_trace_size, modified_trace_size = extract(trace, fdir)
     if '-' in fname:
         label = int(fname.split('-')[0])
     else:
         label = int(MON_SITE_NUM)
-    return bursts, times, label
+    return bursts, times, label, original_burst_size, original_trace_size, modified_trace_size
 
 
 if __name__ == '__main__':
@@ -150,15 +162,16 @@ if __name__ == '__main__':
     norm = args.norm
     norm_cell = args.norm_cell
     logger.info("Arguments: %s" % (args))
-    outputdir = join(cm.outputdir, os.path.split(args.dir.rstrip('/'))[1], 'feature')
+    outputdir = join(cm.outputdir, os.path.split(args.dir.rstrip('/'))[1], 'feature') #rstrip removes the /s at the end of a path
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
-
     cf = utils.read_conf(cm.confdir)
     MON_SITE_NUM = int(cf['monitored_site_num'])
     MON_INST_NUM = int(cf['monitored_inst_num'])
     MON_SITE_START_IND = int(cf['monitored_site_start_ind'])
-    MON_INST_START_IND = int(cf['monitored_inst_start_ind'])                                                        
+    MON_INST_START_IND = int(cf['monitored_inst_start_ind'])
+    
+                                                   
     # if cf['open_world'] == '1':
     #     UNMON_SITE_NUM = int(cf['unmonitored_site_num'])
     #     OPEN_WORLD = 1
@@ -179,7 +192,33 @@ if __name__ == '__main__':
     #         flist.append(os.path.join(args.dir, str(i) + args.format))
     logger.info('In total {} files.'.format(len(flist)))
     raw_data_dict = parallel(flist)
-    bursts, times, labels = zip(*raw_data_dict)
+    bursts, times, labels, original_burst_sizes, original_trace_sizes, modified_trace_sizes = zip(*raw_data_dict) 
+    """ In summary, this line restructures the data so that all 
+    bursts are grouped together in one tuple, all times are grouped together in another tuple, 
+    and all labels are in a third tuple.  """
+
+    
+    plt.hist(original_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
+    plt.title('Histogram of Trace lengths of DS19')
+    plt.xlabel('Trace Lenghts')
+    plt.ylabel('Frequency')
+    plt.savefig('outputs/ds19/stats/original_traces.png')
+    plt.show()   
+
+    plt.hist(modified_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
+    plt.title('Histogram of Modified Trace lengths of DS19 (Time out removal)')
+    plt.xlabel('Trace Lenghts')
+    plt.ylabel('Frequency')
+    plt.savefig('outputs/ds19/stats/modified_traces.png')
+    plt.show()   
+      
+
+    plt.hist(original_burst_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
+    plt.title('Histogram of burst lengths of DS19')
+    plt.xlabel('Trace Lenghts')
+    plt.ylabel('Frequency')
+    plt.savefig('outputs/ds19/stats/original_bursts.png')
+    plt.show()       
     bursts = np.array(bursts)
     labels = np.array(labels)
     logger.info("feature sizes:{}, label size:{}".format(bursts.shape, labels.shape))
