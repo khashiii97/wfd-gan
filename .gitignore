@@ -5,5 +5,4 @@ src/__pycache__
 src/obsolete
 d_model/*.ckpt
 f_model/*.ckpt
-ds19
-outputs/ds19/features
+outputs/ds19/feature/

@@ -14,6 +14,7 @@ import torch.utils.data as Data
 from model import DF
 import utils
 import common as cm
+import time
 
 # Hyper parameters
 num_epochs = 30
@@ -61,8 +62,14 @@ if __name__ == '__main__':
                         type=int,
                         default=7,
                         help='The id number of cuda to be used.')
+    
+    parser.add_argument('--length',
+                        type=int,
+                        default= length,
+                        help='The number of bursts in each trace')
     args = parser.parse_args()
     # Device configuration
+    length = args.length
     device = torch.device('cuda:{}'.format(args.cuda_id) if torch.cuda.is_available() else 'cpu')
 
     # Configure data loader
@@ -114,6 +121,7 @@ if __name__ == '__main__':
 
     total_step = len(train_loader)
     for epoch in range(num_epochs):
+        start_time = time.time()
         model.train()
         for step, (batch_x, batch_y) in enumerate(train_loader):
             batch_x = batch_x.to(device)
@@ -153,8 +161,10 @@ if __name__ == '__main__':
                 _, predicted = torch.max(outputs.data, 1)
                 total_test += batch_y.size(0)
                 correct_test += (predicted == batch_y).sum().item()
-        logger.info("Epoch [{}/{}] train acc: {:.4f} val accuracy: {:.4f}".format(
-            epoch + 1, num_epochs, correct_train / total_train ,correct_test / total_test))
+        elapsed_time = time.time() - start_time
+        logger.info("Epoch [{}/{}] train acc: {:.4f} val accuracy: {:.4f} elapsed time: {:.2f} seconds".format(
+            epoch + 1, num_epochs, correct_train / total_train ,correct_test / total_test, elapsed_time))
+        
 
     fname = args.dir.split('/')[-3]
     model_saved_path = join(cm.dModelDir, 'df_{}.ckpt'.format(fname))

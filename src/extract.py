@@ -15,7 +15,6 @@ logger = utils.init_logger('extract')
 # maybe the loading is already finished
 # Set a very conservative value
 CUT_OFF_THRESHOLD = 10
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Extract burst sequences ipt from raw traces')
 
@@ -48,6 +47,10 @@ def parse_arguments():
                         metavar='<log path>',
                         default='stdout',
                         help='path to the log file. It will print to stdout by default.')
+    parser.add_argument('--dsname',
+                        type=str,
+                        default='ds19',
+                        help='The name of the used dataset')
 
     # Parse arguments
     args = parser.parse_args()
@@ -160,6 +163,7 @@ if __name__ == '__main__':
     args = parse_arguments()
     length = args.length + 1  # add another feature as the real length of the trace
     norm = args.norm
+    dsname = args.dsname
     norm_cell = args.norm_cell
     logger.info("Arguments: %s" % (args))
     outputdir = join(cm.outputdir, os.path.split(args.dir.rstrip('/'))[1], 'feature') #rstrip removes the /s at the end of a path
@@ -195,29 +199,33 @@ if __name__ == '__main__':
     bursts, times, labels, original_burst_sizes, original_trace_sizes, modified_trace_sizes = zip(*raw_data_dict) 
     """ In summary, this line restructures the data so that all 
     bursts are grouped together in one tuple, all times are grouped together in another tuple, 
-    and all labels are in a third tuple.  """
+    and all labels are in a third tuple, ...  """
 
+    outputdir_stats = join(cm.outputdir, os.path.split(args.dir.rstrip('/'))[1], 'stats') #rstrip removes the /s at the end of a path
+    if not os.path.exists(outputdir_stats):
+        os.makedirs(outputdir_stats)
     
+    length = str(length)
     plt.hist(original_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
-    plt.title('Histogram of Trace lengths of DS19')
+    plt.title('Histogram of Trace lengths of ' + dsname + ' With burst size of ' + length)
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
-    plt.savefig('outputs/ds19/stats/original_traces.png')
+    plt.savefig(join(outputdir_stats , 'original_traces.png'))
     plt.show()   
 
     plt.hist(modified_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
-    plt.title('Histogram of Modified Trace lengths of DS19 (Time out removal)')
+    plt.title('Histogram of Modified Trace lengths of '  + dsname + ' With burst size of ' + length)
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
-    plt.savefig('outputs/ds19/stats/modified_traces.png')
+    plt.savefig(join(outputdir_stats , 'modified_traces.png'))
     plt.show()   
       
 
     plt.hist(original_burst_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
-    plt.title('Histogram of burst lengths of DS19')
-    plt.xlabel('Trace Lenghts')
+    plt.title('Histogram of burst lengths' +dsname + ' With burst size of ' + length)
+    plt.xlabel('Burst Lenghts')
     plt.ylabel('Frequency')
-    plt.savefig('outputs/ds19/stats/original_bursts.png')
+    plt.savefig(join(outputdir_stats ,'original_bursts.png'))
     plt.show()       
     bursts = np.array(bursts)
     labels = np.array(labels)
@@ -234,3 +242,22 @@ if __name__ == '__main__':
     np.savez(join(outputdir, "time_feature_{}-{}x{}-{}.npz").
              format(MON_SITE_START_IND, MON_SITE_START_IND + MON_SITE_NUM, MON_INST_START_IND,
                     MON_INST_NUM + MON_INST_START_IND), *times)
+    
+
+
+npz_file = np.load(join(outputdir, "raw_feature_{}-{}x{}-{}.npz".format(MON_SITE_START_IND, MON_SITE_START_IND + MON_SITE_NUM,
+                                                             MON_INST_START_IND, MON_INST_NUM + MON_INST_START_IND)))
+
+# Access the saved arrays using their respective keys
+features = npz_file['features']
+labels = npz_file['labels']
+
+print(features.shape)
+
+zero_counts = [np.count_nonzero(row == 0) for row in features]
+plt.hist(zero_counts, bins='auto')  # 'auto' lets matplotlib decide the number of bins
+plt.title('Histogram of Zero Padding in burst sequences ' + dsname + ' With burst size of ' + length)
+plt.xlabel('Number of Zeros Added')
+plt.ylabel('Frequency')
+plt.savefig(join(outputdir_stats, 'zero_traces.png'))
+plt.show()
