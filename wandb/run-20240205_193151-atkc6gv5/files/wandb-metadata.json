@@ -1,0 +1,79 @@
+{
+    "os": "Linux-6.2.0-37-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "heartbeatAt": "2024-02-06T03:31:52.246712",
+    "startedAt": "2024-02-06T03:31:51.811444",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/localhome/kka151/Desktop/Research Coding/wfd-gan/src/test.py",
+    "codePathLocal": null,
+    "git": {
+        "remote": "https://github.com/khashiii97/wfd-gan.git",
+        "commit": "ead08323fd7e581e29ea2b8ab7b3e4e0d136d9d4"
+    },
+    "email": "khashiii97@gmail.com",
+    "root": "/local-scratch/localhome/kka151/Desktop/Research Coding/wfd-gan",
+    "host": "cs-stl-36",
+    "username": "kka151",
+    "executable": "/localhome/kka151/venvs/dlvenv/bin/python3",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 3700.009499999999,
+        "min": 800.0,
+        "max": 4000.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3699.966,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3699.78,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3699.999,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3699.862,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3700.008,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3700.045,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3700.139,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3700.277,
+            "min": 800.0,
+            "max": 4000.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 126.90119171142578,
+            "used": 37.35211944580078
+        }
+    },
+    "memory": {
+        "total": 31.22235870361328
+    }
+}
