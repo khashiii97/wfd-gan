@@ -1,0 +1,3 @@
+/localscratch/spool/slurmd/job24675712/slurm_script: line 22: venvs/torch/bin/activate: No such file or directory
+/localscratch/spool/slurmd/job24675712/slurm_script: line 26: cd: projects/def-t55wang/kka151/wfd-gan/src/: No such file or directory
+python3: can't open file '/project/6058534/kka151/wfd-gan/jobs/extract.py': [Errno 2] No such file or directory
