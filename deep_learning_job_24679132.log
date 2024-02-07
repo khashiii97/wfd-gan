@@ -1,0 +1,13 @@
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) openmpi/4.0.3     2) ucx/1.8.0
+
+The following have been reloaded with a version change:
+  1) libfabric/1.10.1 => libfabric/1.15.1
+
+Traceback (most recent call last):
+  File "/project/6058534/kka151/wfd-gan/src/extract.py", line 5, in <module>
+    import utils
+  File "/project/6058534/kka151/wfd-gan/src/utils.py", line 8, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
