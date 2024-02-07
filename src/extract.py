@@ -211,14 +211,14 @@ if __name__ == '__main__':
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats , 'original_traces.png'))
-    plt.show()   
+    #plt.show()   
 
     plt.hist(modified_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
     plt.title('Histogram of Modified Trace lengths of '  + dsname + ' With burst size of ' + length)
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats , 'modified_traces.png'))
-    plt.show()   
+    #plt.show()   
       
 
     plt.hist(original_burst_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     plt.xlabel('Burst Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats ,'original_bursts.png'))
-    plt.show()       
+    #plt.show()       
     bursts = np.array(bursts)
     labels = np.array(labels)
     logger.info("feature sizes:{}, label size:{}".format(bursts.shape, labels.shape))
@@ -260,4 +260,4 @@ plt.title('Histogram of Zero Padding in burst sequences ' + dsname + ' With burs
 plt.xlabel('Number of Zeros Added')
 plt.ylabel('Frequency')
 plt.savefig(join(outputdir_stats, 'zero_traces.png'))
-plt.show()
+#plt.show()
