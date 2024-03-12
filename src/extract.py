@@ -187,9 +187,14 @@ if __name__ == '__main__':
 
     flist = []
     for i in range(MON_SITE_START_IND, MON_SITE_START_IND + MON_SITE_NUM):
+        
         for j in range(MON_INST_START_IND, MON_INST_START_IND + MON_INST_NUM):
+            if i == 0 and j == 0:
+                
+                print(os.path.join(args.dir, str(i) + "-" + str(j) + args.format))
             if os.path.exists(os.path.join(args.dir, str(i) + "-" + str(j) + args.format)):
                 flist.append(os.path.join(args.dir, str(i) + "-" + str(j) + args.format))
+
     # do not support open world set.
     # for i in range(UNMON_SITE_NUM):
     #     if os.path.exists(os.path.join(args.dir, str(i) + args.format)):
@@ -206,26 +211,32 @@ if __name__ == '__main__':
         os.makedirs(outputdir_stats)
     
     length = str(length)
+    plt.figure()
     plt.hist(original_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
     plt.title('Histogram of Trace lengths of ' + dsname + ' With burst size of ' + length)
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats , 'original_traces.png'))
     #plt.show()   
+    plt.clf()
 
+
+    plt.figure()
     plt.hist(modified_trace_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
     plt.title('Histogram of Modified Trace lengths of '  + dsname + ' With burst size of ' + length)
     plt.xlabel('Trace Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats , 'modified_traces.png'))
     #plt.show()   
+    plt.clf()
       
-
+    plt.figure()
     plt.hist(original_burst_sizes, bins='auto')  # 'auto' lets matplotlib decide the number of bins
-    plt.title('Histogram of burst lengths' +dsname + ' With burst size of ' + length)
+    plt.title('Histogram of burst lengths of' +dsname + ' With burst size of ' + length)
     plt.xlabel('Burst Lenghts')
     plt.ylabel('Frequency')
     plt.savefig(join(outputdir_stats ,'original_bursts.png'))
+    plt.clf()
     #plt.show()       
     bursts = np.array(bursts)
     labels = np.array(labels)
@@ -255,9 +266,11 @@ labels = npz_file['labels']
 print(features.shape)
 
 zero_counts = [np.count_nonzero(row == 0) for row in features]
+plt.figure()
 plt.hist(zero_counts, bins='auto')  # 'auto' lets matplotlib decide the number of bins
 plt.title('Histogram of Zero Padding in burst sequences ' + dsname + ' With burst size of ' + length)
 plt.xlabel('Number of Zeros Added')
 plt.ylabel('Frequency')
 plt.savefig(join(outputdir_stats, 'zero_traces.png'))
+plt.clf()
 #plt.show()
