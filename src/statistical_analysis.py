@@ -120,13 +120,14 @@ def compare_classes_across_bursts(class1, class2, metric_nums, save_filename = N
     plt.clf()
     
 metric_nums = [1, 3]
-class_numbers = [20,40, 60, 80]
+class_numbers = [20,40, 80]
 # for class_number in class_numbers:
 #     compare_bursts_across_classes(burst_number= 150, class_numbers = [class_number], show_plots= False, save_path= f"outputs/ds19/burst_hists/class{class_number}_burst{150}.png")
-for _ in range(10):
-    class_pairs = np.random.choice(range(100), size=2, replace=False)
-    class1, class2 = class_pairs
+# for _ in range(10):
+#     class_pairs = np.random.choice(range(100), size=2, replace=False)
+#     class1, class2 = class_pairs
     
-    # Here you'd call your actual function to compare the classes and plot/save the results
-    # For demonstration, the function call is commented out
-    compare_classes_across_bursts(class1, class2, metric_nums = metric_nums, save_filename= f"outputs/ds19/hist_compare/class{class1}_vs_class{class2}.png")
+#     # Here you'd call your actual function to compare the classes and plot/save the results
+#     # For demonstration, the function call is commented out
+#     compare_classes_across_bursts(class1, class2, metric_nums = metric_nums, save_filename= f"outputs/ds19/hist_compare/class{class1}_vs_class{class2}.png")
+compare_bursts_across_classes(burst_number= 150, class_numbers = class_numbers, show_plots= False, save_path= f"outputs/ds19/burst_hists/burst{150}.png")

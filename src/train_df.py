@@ -17,9 +17,9 @@ import common as cm
 import time
 
 # Hyper parameters
-num_epochs = 30
+num_epochs = 20
 batch_size = 128
-length = 1400
+length = 500
 mask_length = length
 DEBUG = 1
 
@@ -74,6 +74,8 @@ if __name__ == '__main__':
 
     # Configure data loader
     X, y = utils.load_dataset(args.dir)
+    print(X.shape)
+    print(y.shape)
     logger.info("Loaded dataset:{}, min burst:{} max burst:{}, min label:{}, max label:{}"
                 .format(X.shape, X[:, 1:].min(), X[:, 1:].max(), y.min(), y.max()))
     # reindex label starting from 0
@@ -170,3 +172,18 @@ if __name__ == '__main__':
     model_saved_path = join(cm.dModelDir, 'df_{}.ckpt'.format(fname))
     torch.save(model.state_dict(), model_saved_path)
     logger.info("Model is saved to {}".format(model_saved_path))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

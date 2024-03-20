@@ -204,6 +204,14 @@ class DF(nn.Module):
         out = self.layer5(out)
         out = self.fc(out)
         return out
+    
+    def get_layer4_output(self, x):
+        # Replicate the forward logic up to layer4
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        layer4_output = self.layer4(out)  # Here is where you get the layer4 output
+        return layer4_output
 
     def linear_input(self):
         res = self.length
